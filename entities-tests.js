@@ -88,7 +88,8 @@ if (Meteor.isClient) {
           dependencyFired = true;
           let stored = entity.stored;
         });
-        coll.update({id: 1},{$set: {stored: entity.stored * 7}});
+        dependencyFired = false;
+        coll.update({_id: entity._id},{$set: {stored: entity.stored * 7}});
         Tracker.afterFlush(() => {
           test.isTrue(dependencyFired);
           next();
