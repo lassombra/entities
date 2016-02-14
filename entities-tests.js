@@ -8,6 +8,7 @@ class MyEntity {
   }
 }
 Wrapped = Entity.wrap(MyEntity, {
+  id: Number,
   stored: Number,
   differentName: {
     check: String,
@@ -93,6 +94,30 @@ if (Meteor.isClient) {
         Tracker.afterFlush(() => {
           test.isTrue(dependencyFired);
           next();
+        });
+      });
+      Tinytest.add('Entity - save updates mongo', test => {
+        let entity = Wrapped.findOne({id: 1});
+        let stored = entity.calculated * 15;
+        entity.stored = stored;
+        entity.save();
+        let mongo = coll.findOne({id: 1}).stored;
+        test.equal(stored, mongo);
+      });
+      Tinytest.add('Entity - create new and save', test => {
+        let entity = new Wrapped();
+        entity.id = 2;
+        entity.save();
+        test.isNotUndefined(coll.findOne({id: 2}));
+        test.equal(coll.findOne({id: 2})._id, entity._id);
+      });
+      Tinytest.add('Entity - delete', test => {
+        let entity = Wrapped.findOne({id: 2});
+        entity.delete();
+        entity.save();
+        test.isUndefined(coll.findOne({id: 2}));
+        test.throws(() => {
+          let id = entity.id;
         });
       });
       Tinytest.addAsync('Entity - entities throw errors when removed from mongo', (test, next) => {
