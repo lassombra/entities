@@ -36,6 +36,16 @@ if (Meteor.isServer) {
   coll.update({id:1},{id:1, stored: 75, regularName: 'somethingHere', simpleString: 'somethingElse'},{upsert:true});
 }
 if (Meteor.isClient) {
+  Tinytest.add('Entity - method returns promise', function(test) {
+    let promise = Wrapped.doSomething();
+    test.isTrue(promise instanceof Promise);
+  });
+  Tinytest.add('Entity - publication wrapped and returns subscription ID', test => {
+    let result = Wrapped.loadStuff();
+    test.isNotUndefined(result.subscriptionId);
+    test.isNotUndefined(result.ready);
+    test.isNotUndefined(result.subscriptionId);
+  });
   Wrapped.loadStuff({
     onReady() {
       Tinytest.add('Entity - findOne is idempotent (returns the same each time)', function (test) {
@@ -99,15 +109,5 @@ if (Meteor.isClient) {
         });
       });
     }
-  });
-  Tinytest.add('Entity - method returns promise', function(test) {
-    let promise = Wrapped.doSomething();
-    test.isTrue(promise instanceof Promise);
-  });
-  Tinytest.add('Entity - publication wrapped and returns subscription ID', test => {
-    let result = Wrapped.loadStuff();
-    test.isNotUndefined(result.subscriptionId);
-    test.isNotUndefined(result.ready);
-    test.isNotUndefined(result.subscriptionId);
   });
 }
