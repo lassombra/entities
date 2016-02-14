@@ -49,6 +49,7 @@ function addFunctions(targetClass) {
                                 // cleanup the pending values and the update object.
                                 // note that this update might not have come from this client
                                 // so we check that there is something to update first.
+                                this[_entity].dependencies[key].changed();
                                 if (_.has(this[_entity].currentValues, key)) {
                                     delete this[_entity].currentValues[key];
                                 }
