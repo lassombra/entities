@@ -22,7 +22,10 @@ Package.onUse(function(api) {
     ]);
   api.addFiles(
     [
-      'entities.js'
+      'entities.js',
+      'field.js',
+      'methods.js',
+      'publications.js'
     ]);
   api.export('Entity');
 });
