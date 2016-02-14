@@ -43,7 +43,7 @@ function createAccessors(targetConstructor, key, name, checkRule) {
     function get() {
         // init is a function on _entity which will make sure that
         // everything is setup
-        this[_entity].init.call(this);
+        this[_init]();
         // setup dependency even if we don't return anything.
         // that just means we will want to know when we do have something.
         this[_entity].dependencies[name].depend();
@@ -52,12 +52,12 @@ function createAccessors(targetConstructor, key, name, checkRule) {
     }
     function set(value) {
         check(value, checkRule);
-        this[_entity].init.call(this);
+        this[_init]();
         let current = this[_entity].currentValues[name]
             || this[_entity].values[name];
         if (value !== current) {
             this[_entity].currentValues[name] = value;
-            this[_entity].updates[name] = _.clone(value);
+            this[_entity].update[name] = _.clone(value);
             this[_entity].dependencies[name].changed();
         }
     }
