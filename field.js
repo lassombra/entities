@@ -44,6 +44,12 @@ function createAccessors(targetConstructor, key, name, checkRule) {
         // init is a function on _entity which will make sure that
         // everything is setup
         this[_init]();
+        if (this[_entity].deleted) {
+            if (Tracker.currentComputation) {
+                Tracker.currentComputation.stop();
+            }
+            throw new Error('can\'t access field on deleted entity');
+        }
         // setup dependency even if we don't return anything.
         // that just means we will want to know when we do have something.
         this[_entity].dependencies[name].depend();
@@ -53,6 +59,12 @@ function createAccessors(targetConstructor, key, name, checkRule) {
     function set(value) {
         check(value, checkRule);
         this[_init]();
+        if (this[_entity].deleted) {
+            if (Tracker.currentComputation) {
+                Tracker.currentComputation.stop();
+            }
+            throw new Error('can\'t access field on deleted entity');
+        }
         let current = this[_entity].currentValues[name]
             || this[_entity].values[name];
         if (value !== current) {

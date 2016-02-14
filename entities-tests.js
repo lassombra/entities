@@ -34,7 +34,10 @@ Wrapped = Entity.wrap(MyEntity, {
   }
 });
 if (Meteor.isServer) {
-  coll.update({id:1},{id:1, stored: 75, regularName: 'somethingHere', simpleString: 'somethingElse'},{upsert:true});
+  Meteor.startup( () => {
+    coll.update({id:1},{id:1, stored: 75, regularName: 'somethingHere', simpleString: 'somethingElse'},{upsert:true});
+    coll.remove({id: 2});
+  });
 }
 if (Meteor.isClient) {
   Tinytest.add('Entity - method returns promise', function(test) {

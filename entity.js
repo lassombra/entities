@@ -17,6 +17,7 @@ entityCreate = function entityCreate(targetClass, collection) {
         targetClass[_entity].collection = collection;
         addFunctions(targetClass);
         addFind(targetClass);
+        addSave(targetClass);
         return targetClass;
     }
 };
@@ -43,7 +44,10 @@ function addFunctions(targetClass) {
                         // get filtered out by the fields option passed to the query.
                         if (key in targetClass[_entity].fields) {
                             // check if this is a change.  If it is not, we don't do anything with it.
-                            if (this[_entity].values[key] !== databaseEntry[key]) {
+                            // we'll also do something with it if this entity was marked as deleted previously.
+                            // this won't interfere with delete() followed immediately by save() but will
+                            // allow delay in calling save to create a resurrecting entity.
+                            if (this[_entity].values[key] !== databaseEntry[key] || this[_entity].deleted) {
                                 // update the cached version of the database entry
                                 this[_entity].values[key] = databaseEntry[key];
                                 // cleanup the pending values and the update object.
@@ -57,12 +61,16 @@ function addFunctions(targetClass) {
                                     delete this[_entity].update[key];
                                 }
                             }
+                            this[_entity].deleted = false;
                         }
                     });
                 } else {
-                    //TODO: mark this entity as deleted.
                     delete targetClass[_entity].entities[this._id];
                     this[_entity].autorun.stop();
+                    this[_entity].deleted = true;
+                    _.each(_.keys(this[_entity].dependencies), key => {
+                        this[_entity].dependencies[key].changed();
+                    });
                 }
             });
         }
@@ -128,7 +136,50 @@ function addFind(targetClass) {
         return targetClass[_entity].entities[_id];
     }
 }
-function addReset(targetClass) {
-}
-function addSave(targetClass, collection) {
+function addSave(targetClass) {
+    targetClass.prototype.save = function() {
+        if (this[_entity].update && !this[_entity].deleted) {
+            // we have something to save.
+            if (this._id) {
+                // we are saving updates.  Not much to do here.
+                targetClass[_entity].collection.update(
+                    {_id: this._id},
+                    {$set: this[_entity].update}
+                );
+                // not technically necessary as the entities
+                // autorun will handle it.  Still, good to cleanup after ourselves.
+                this[_entity].update = {};
+            } else {
+                // ok, things just got complicated fast.
+                // first, let's get an id.
+                let _id = Random.id();
+                // make sure we populate the entities field
+                // to prevent race conditions creating two copies
+                targetClass[_entity].entities[_id] = this;
+                this._id = _id;
+                // this is how we'll tell mongo to save our _id.
+                this[_entity].update._id = _id;
+                targetClass[_entity].collection.insert(this[_entity].update);
+                this[_entity].update = {};
+                // since this is a new entity, this step is needed.
+                this[_setupAutorun]();
+            }
+        } else if (this[_entity].deleted) {
+            // this action WILL cause the autorun to refire and actually shut itself down.
+            // this is also the point at which this entity will actually get removed from
+            // the map which will be handled by the autorun.
+            if (this._id) {
+                targetClass[_entity].collection.remove({_id: this._id});
+            }
+            // no else.  If there isn't an _id then this is already a free-agent.  It can't
+            // be resurrected.  It isn't attached to anything.  It is not a memory leak
+            // or anything else at this point.
+        }
+    };
+    targetClass.prototype.delete = function() {
+        this[_entity].deleted = true;
+        _.each(_.keys(this[_entity].dependencies), key => {
+            this[_entity].dependencies[key].changed();
+        });
+    }
 }

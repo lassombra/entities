@@ -18,7 +18,8 @@ Package.onUse(function(api) {
       'tracker',
       'underscore',
       'check',
-      'mongo'
+      'mongo',
+      'random'
     ]);
   api.addFiles(
     [
