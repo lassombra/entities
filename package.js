@@ -25,7 +25,8 @@ Package.onUse(function(api) {
       'entities.js',
       'field.js',
       'methods.js',
-      'publications.js'
+      'publications.js',
+      'entity.js'
     ]);
   api.export('Entity');
 });

@@ -44,11 +44,11 @@ if (Meteor.isClient) {
       });
       Tinytest.add('Entity - mapped parameter name works', test => {
         let entity = Wrapped.findOne({id:1});
-        test.isEqual(entity.differentName, 'somethingHere');
+        test.equal(entity.differentName, 'somethingHere');
       });
       Tinytest.add('Entity - simple parameter works', test => {
         let entity = Wrapped.findOne({id:1});
-        test.isEqual(entity.simpleString, 'somethingElse');
+        test.equal(entity.simpleString, 'somethingElse');
       })
       Tinytest.addAsync('Entity - change triggers dependency', (test, next) => {
         let dependencyFired = false;
@@ -68,7 +68,7 @@ if (Meteor.isClient) {
       Tinytest.add('Entity - calculated prototypes on entity work', test => {
         let entity = Wrapped.findOne({id: 1});
         test.isNotUndefined(entity);
-        test.isEqual(entity.stored + 1, entity.calculated);
+        test.equal(entity.stored + 1, entity.calculated);
       });
       Tinytest.addAsync('Entity - changes to underlying data update entity', (test, next) => {
         let entity = Wrapped.findOne({id:1});
