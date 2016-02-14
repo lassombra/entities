@@ -2,44 +2,7 @@
  * Yay for Symbol().  It lets me create various symbols that will be used throughout this package and they will
  * NEVER conflict with other behavior.  This is the mixin authors best friend, really!
  */
-/**
- * This will be added to the entity constructor created object and will have all of the Tracker.dependencies needed.
- * @type {Symbol}
- * @private
- */
-_dependencies = Symbol();
-/**
- * This will be added to the entity constructor created object and will have all of the Tracker.dependencies
- * @type {Symbol}
- * @private
- */
-_update = Symbol();
-/**
- * This will be added to the entity constructor created object and will have the values as stored in the collection
- * @type {Symbol}
- * @private
- */
-_values = Symbol();
-/**
- * This will be added to the entity constructor created object and will have all of the "override" values that
- * haven't been saved yet.
- * @type {Symbol}
- * @private
- */
-_currentValues = Symbol();
-/**
- * This will be placed on the entity prototype.  It is a list of fields to care about in Mongo.
- * @type {Symbol}
- * @private
- */
-_fields = Symbol();
-/**
- * This will be placed on the entity prototype.  It will be the map of entities currently held in memory
- * on the client.
- * @type {Symbol}
- * @private
- */
-_entities = Symbol();
+_entity = Symbol();
 
 // export
 Entity = {};
